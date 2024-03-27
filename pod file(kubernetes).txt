@@ -1,0 +1,177 @@
+apiVersion: v1
+kind: Pod
+metadata:
+ name: nginx-pod 
+ labels:
+  app: web
+spec:
+ containers:
+ - name: nginx
+   image: nginx:latest
+   ports:
+   - containerPort: 80
+
+---------------
+kubectl apply -f pod-nginx.yml
+
+kubectl describe pod nginx-pod
+
+
+kubectl exec -it nginx-pod -- /bin/bash
+
+cd /usr/share/nginx/html/
+
+minikube dashboard --url
+
+---LABELS
+kubectl label pod nginx-pod app=dev
+
+kubectl get pods --show-labels
+
+kubectl get pods --selector app=dev
+
+
+kubectl get pods -o wide
+
+minikube ssh
+
+curl @IP
+
+--------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: web-dep
+spec:
+ replicas: 4
+ selector:
+  matchLabels:
+   app: web
+# strategy:
+#  type: Recreate
+ template:
+   metadata:
+    labels:
+     app: web
+   spec:
+    containers:
+     - name: web
+       image: nginx:1.5
+       ports:
+        - containerPort: 80 
+
+-------
+kubectl apply -f dep.yml
+
+# REPLIQUI LI (up or down scaling)
+kubectl scale deployment web-dep --replicas=3
+
+#HYWLIW 3
+kubectl get all 
+
+-----------------
+kubectl expose deployment web-dep --name=web-service --type=ClusterIP --port=8080 --target-port=8080
+
+# kubectl get all == 5tar smit pod == pod name
+kubectl port-forward pod_name 8080:80
+
+
+------------------------
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+spec:
+  selector:
+    app: nginx-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: LoadBalancer
+
+
+
+minikube service nginx-service
+
+
+------------------------
+
+
+
+
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-app-deploy
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx-app
+  template:
+    metadata:
+      labels:
+        app: nginx-app
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+
+
+
+
+
+
+
+------------
+NOT WORK (BD ERROR)
+------------
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wordpress-mysql
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: wordpress-mysql
+  template:
+    metadata:
+      labels:
+        app: wordpress-mysql
+    spec:
+      containers:
+      - name: wordpress
+        image: wordpress:latest
+        ports:
+        - containerPort: 80
+        env:
+        - name: WORDPRESS_DB_HOST
+          value: mysql
+        - name: WORDPRESS_DB_NAME
+          value: wordpress
+        - name: WORDPRESS_DB_USER
+          value: wordpress
+        - name: WORDPRESS_DB_PASSWORD
+          value: wordpress
+      - name: mysql
+        image: mariadb
+        ports:
+        - containerPort: 3306
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: wordpress
+        - name: MYSQL_USER
+          value: wordpress
+        - name: MYSQL_DATABASE
+          value: wordpress
+        - name: MYSQL_PASSWORD
+          value: wordpress
+
