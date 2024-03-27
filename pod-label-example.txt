@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-label-example
+  labels:
+    app: Appnginx
+    env: prod
+spec:
+  containers:
+  - name: nginx
+    image: nginx:stable-alpine
+    ports:
+    - containerPort: 80
+  nodeSelector:
+    gpu: nvidia
